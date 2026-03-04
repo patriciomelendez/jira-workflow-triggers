@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jira Workflow Automation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f8faff;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 60px 40px;
+  }
+
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #4c6ef5;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: 38px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  /* Board statuses row */
+  .board-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 20px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .status-pill {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .status-pill.highlight-blue {
+    border-color: #4c6ef5;
+    background: #eef2ff;
+    color: #3b5bdb;
+  }
+
+  .status-pill.highlight-orange {
+    border-color: #f97316;
+    background: #fff7ed;
+    color: #c2410c;
+  }
+
+  .status-pill.highlight-green {
+    border-color: #10b981;
+    background: #ecfdf5;
+    color: #047857;
+  }
+
+  .arrow-connector {
+    width: 32px;
+    height: 2px;
+    background: #e2e8f0;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .arrow-connector::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid #e2e8f0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+
+  /* Triggers */
+  .triggers {
+    display: grid;
+    gap: 20px;
+    margin-top: 12px;
+  }
+
+  .trigger-card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .trigger-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+  }
+
+  .trigger-card.blue::before { background: #4c6ef5; }
+  .trigger-card.orange::before { background: #f97316; }
+  .trigger-card.green::before { background: #10b981; }
+
+  .trigger-card.blue { border-color: #c7d2fe; }
+  .trigger-card.orange { border-color: #fed7aa; }
+  .trigger-card.green { border-color: #a7f3d0; }
+
+  /* Number badge */
+  .step-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .blue .step-num { background: #eef2ff; color: #4c6ef5; }
+  .orange .step-num { background: #fff7ed; color: #f97316; }
+  .green .step-num { background: #ecfdf5; color: #10b981; }
+
+  /* Content */
+  .trigger-content {}
+
+  .trigger-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .trigger-desc {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  /* Transition flow inside card */
+  .transition-flow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .t-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .t-pill.from {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+  }
+
+  .t-pill.to.blue { background: #eef2ff; color: #3b5bdb; border: 1.5px solid #c7d2fe; }
+  .t-pill.to.orange { background: #fff7ed; color: #c2410c; border: 1.5px solid #fed7aa; }
+  .t-pill.to.green { background: #ecfdf5; color: #047857; border: 1.5px solid #a7f3d0; }
+
+  .t-arrow {
+    font-size: 16px;
+    color: #94a3b8;
+    font-weight: 700;
+  }
+
+  /* GitHub action badge */
+  .gh-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .gh-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .blue .gh-icon { background: #eef2ff; }
+  .orange .gh-icon { background: #fff7ed; }
+  .green .gh-icon { background: #ecfdf5; }
+
+  .gh-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .blue .gh-icon svg { color: #4c6ef5; }
+  .orange .gh-icon svg { color: #f97316; }
+  .green .gh-icon svg { color: #10b981; }
+
+  .gh-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .blue .gh-label { color: #4c6ef5; }
+  .orange .gh-label { color: #f97316; }
+  .green .gh-label { color: #10b981; }
+
+  /* Condition note */
+  .condition {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 10px;
+  }
+
+  .condition svg {
+    width: 13px;
+    height: 13px;
+    color: #94a3b8;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <h1>Jira Board: Workflow Triggers</h1>
+  </div>
+
+  <!-- Triggers -->
+  <div class="triggers">
+
+    <!-- Trigger 1 -->
+    <div class="trigger-card blue">
+      <div class="step-num">1</div>
+      <div class="trigger-content">
+        <div class="trigger-title">Branch Created → Move to In Progress</div>
+        <div class="trigger-desc">When a developer creates a branch linked to a ticket, it signals active work has begun. The ticket automatically moves from Next Up to In Progress.</div>
+        <div class="transition-flow">
+          <div class="t-pill from">NEXT UP</div>
+          <div class="t-arrow">→</div>
+          <div class="t-pill to blue">IN PROGRESS</div>
+        </div>
+        <div class="condition">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Only triggers if the ticket is currently in "Next Up"
+        </div>
+      </div>
+      <div class="gh-badge">
+        <div class="gh-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/>
+            <circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+        </div>
+        <div class="gh-label">Branch<br>Created</div>
+      </div>
+    </div>
+
+    <!-- Trigger 2 -->
+    <div class="trigger-card orange">
+      <div class="step-num">2</div>
+      <div class="trigger-content">
+        <div class="trigger-title">Pull Request Created → Move to In Review</div>
+        <div class="trigger-desc">When a developer opens a pull request, the code is ready for peer review. The ticket automatically moves from In Progress to In Review.</div>
+        <div class="transition-flow">
+          <div class="t-pill from">IN PROGRESS</div>
+          <div class="t-arrow">→</div>
+          <div class="t-pill to orange">IN REVIEW</div>
+        </div>
+        <div class="condition">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Only triggers if the ticket is currently in "In Progress"
+        </div>
+      </div>
+      <div class="gh-badge">
+        <div class="gh-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+            <path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/>
+          </svg>
+        </div>
+        <div class="gh-label">Pull Request<br>Created</div>
+      </div>
+    </div>
+
+    <!-- Trigger 3 -->
+    <div class="trigger-card green">
+      <div class="step-num">3</div>
+      <div class="trigger-content">
+        <div class="trigger-title">Pull Request Merged → Move to Done</div>
+        <div class="trigger-desc">When a pull request is merged, the work is complete and in the codebase. The ticket automatically moves to Done regardless of whether it was in In Review or QA.</div>
+        <div class="transition-flow">
+          <div class="t-pill from">IN REVIEW</div>
+          <div class="t-arrow">→</div>
+          <div class="t-pill to green">DONE</div>
+        </div>
+        <div class="transition-flow" style="margin-top: 8px;">
+          <div class="t-pill from">QA</div>
+          <div class="t-arrow">→</div>
+          <div class="t-pill to green">DONE</div>
+        </div>
+        <div class="condition">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Triggers from both "In Review" and "QA" statuses
+        </div>
+      </div>
+      <div class="gh-badge">
+        <div class="gh-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+            <path d="M6 21V9a9 9 0 0 0 9 9"/>
+          </svg>
+        </div>
+        <div class="gh-label">Pull Request<br>Merged</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Naming Convention -->
+  <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:28px 32px;margin-top:20px;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4c6ef5;margin-bottom:10px;">Naming Convention</div>
+    <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:20px;">Include the ticket key in your branch, commit, and PR for triggers to work.</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">Branch</div>
+        <div style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">PD-{ticket-key}/short-description</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Example</div>
+        <div style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">PD-795/fix-claims-ui</div>
+      </div>
+
+      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">Commit</div>
+        <div style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">[PD-{ticket-key}] short description</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Example</div>
+        <div style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">[PD-795] fix success message after claim submission</div>
+      </div>
+
+      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">Pull Request</div>
+        <div style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">[PD-{ticket-key}] short description</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Example</div>
+        <div style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">[PD-795] Fix claims UI — success state feedback</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">PackDraw · Jira Automation · GitHub Integration · Requires ticket number in branch name</div>
+
+</div>
+</body>
+</html>
