@@ -288,6 +288,112 @@
     color: #94a3b8;
     text-align: center;
   }
+
+  /* ── Mobile Responsive ── */
+  @media (max-width: 640px) {
+    body {
+      padding: 32px 16px;
+    }
+
+    h1 {
+      font-size: 26px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+
+    /* Stack trigger cards vertically */
+    .trigger-card {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      padding: 20px 18px;
+      gap: 16px;
+    }
+
+    /* Move the icon badge to the top-right corner inline with the number */
+    .gh-badge {
+      grid-column: 2;
+      grid-row: 1;
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .gh-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+    }
+
+    .gh-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .gh-label {
+      font-size: 9px;
+      text-align: left;
+    }
+
+    /* Content spans full width below the header row */
+    .trigger-content {
+      grid-column: 1 / -1;
+    }
+
+    .trigger-title {
+      font-size: 15px;
+    }
+
+    .trigger-desc {
+      font-size: 13px;
+    }
+
+    .step-num {
+      width: 34px;
+      height: 34px;
+      font-size: 14px;
+    }
+
+    /* Naming convention: single column */
+    .naming-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .naming-card {
+      padding: 14px 16px !important;
+    }
+
+    .naming-format {
+      font-size: 11px !important;
+      word-break: break-all;
+    }
+
+    .naming-example {
+      font-size: 11px !important;
+      word-break: break-all;
+    }
+
+    /* Naming convention outer card padding */
+    .naming-grid {
+      gap: 12px !important;
+    }
+
+    [style*="padding:28px 32px"] {
+      padding: 20px 16px !important;
+    }
+
+    /* Board row: allow horizontal scroll */
+    .board-row {
+      justify-content: flex-start;
+    }
+
+    .status-pill {
+      font-size: 11px;
+      padding: 8px 12px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -392,27 +498,27 @@
   <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:28px 32px;margin-top:20px;">
     <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4c6ef5;margin-bottom:10px;">Naming Convention</div>
     <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:20px;">Include the ticket key in your branch, commit, and PR for triggers to work.</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+    <div class="naming-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
 
-      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+      <div class="naming-card" style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
         <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">Branch</div>
-        <div style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">PD-{ticket-key}/short-description</div>
+        <div class="naming-format" style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">PD-{ticket-key}/short-description</div>
         <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Example</div>
-        <div style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">PD-795/fix-claims-ui</div>
+        <div class="naming-example" style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">PD-795/fix-claims-ui</div>
       </div>
 
-      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+      <div class="naming-card" style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
         <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">Commit</div>
-        <div style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">[PD-{ticket-key}] short description</div>
+        <div class="naming-format" style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">[PD-{ticket-key}] short description</div>
         <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Example</div>
-        <div style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">[PD-795] fix success message after claim submission</div>
+        <div class="naming-example" style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">[PD-795] fix success message after claim submission</div>
       </div>
 
-      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+      <div class="naming-card" style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
         <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin-bottom:10px;">Pull Request</div>
-        <div style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">[PD-{ticket-key}] short description</div>
+        <div class="naming-format" style="font-family:monospace;font-size:13px;color:#3b5bdb;background:#eef2ff;border-radius:6px;padding:6px 10px;margin-bottom:8px;">[PD-{ticket-key}] short description</div>
         <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Example</div>
-        <div style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">[PD-795] Fix claims UI — success state feedback</div>
+        <div class="naming-example" style="font-family:monospace;font-size:12px;color:#475569;background:#f1f5f9;border-radius:6px;padding:6px 10px;">[PD-795] Fix claims UI — success state feedback</div>
       </div>
 
     </div>
